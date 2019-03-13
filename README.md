@@ -1,5 +1,13 @@
 # GHCNDaily
-Tools to download and read GHCN daily data
+Unofficial tools to download and read meteorological data from GHCN daily archive.
+
+GHCN daily homepage - https://www.ncdc.noaa.gov/ghcn-daily-description
+
+## Requirements
+Python 3.6
+Numpy 1.15
+Pandas 0.23
+This project was not tested with older versions but in principle should work with any recent version
 
 ## Example
 
