@@ -5,7 +5,6 @@ This module provide basic functions for downloading and reading GHCN daily data
 __author__ = 'V. Kokorev'
 __email__ = "v.kokorev@utwente.nl"
 
-
 import numpy as np
 import pandas as pd
 import os.path
@@ -13,7 +12,6 @@ import urllib
 import shutil
 
 _base_url = 'ftp://ftp.ncdc.noaa.gov/pub/data/ghcn/daily/'
-
 
 class GHCNInventory:
     """
@@ -28,7 +26,7 @@ class GHCNInventory:
 
     def read_file(self, fn):
         dat = pd.read_fwf(fn, widths=[2, 1, 8, 9, 10, 5, 5, 5],
-                          names=('country', 'network_code', 'id', 'lat', 'lon', 'first_year', 'last_year'))
+                          names=('country', 'network_code', 'id', 'lat', 'lon', 'element', 'first_year', 'last_year'))
         dat['st_id'] = dat['country'] + dat['network_code'] + dat['id']
         return dat
 
@@ -36,10 +34,10 @@ class GHCNInventory:
         with urllib.request.urlopen(self.download_url) as response, open(fn, 'wb') as out_file:
             shutil.copyfileobj(response, out_file)
 
-    def filter(self, country=None, var=None, lat_lon_box=None):
+    def filter(self, country=None, element=None, lat_lon_box=None):
         """
         :param country: country FIPS code or list of codes
-        :param var: element type as specified in GHCN documentation
+        :param element: element type as specified in GHCN documentation
         :param lat_lon_box:
         :return: records from the inventory that fit specified parameters
         """
@@ -48,24 +46,23 @@ class GHCNInventory:
             if type(country) is str:
                 country = [country]
             for cc in country:
-                mask = mask * self._get_mask_country(cc)
-        if var is not None:
-            if type(var) is str:
-                var = [var]
-            for v in var:
-                mask = mask * self._get_mask_variable(v)
+                mask = mask & self._get_mask_country(cc)
+        if element is not None:
+            if type(element) is str:
+                element = [element]
+            for v in element:
+                mask = mask & self._get_mask_variable(v)
         if lat_lon_box is not None:
             if not hasattr(lat_lon_box[0], '__iter__'):
                 lat_lon_box = [lat_lon_box]
             for llb in lat_lon_box:
-                mask = mask * self._get_mask_latlonbox(llb)
+                mask = mask & self._get_mask_latlonbox(llb)
         return self.stations[mask]
 
     def _get_mask_country(self, country_code):
         """
-
         :param country_code: FIPS country code
-        :return:
+        :return: bool mask
         """
         country_code = country_code.upper()
         mask = self.stations['country'] == country_code
@@ -77,11 +74,7 @@ class GHCNInventory:
     def _get_mask_latlonbox(self, llbox):
         lt_lat, lt_lon, rb_lat, rb_lon = llbox
         ssi = self.stations
-        mask = (ssi['lat'] <= lt_lat) * (ssi['lon'] >= lt_lon) * (ssi['lat'] >= rb_lat) * (ssi['lon'] <= rb_lon)
-        return mask
-
-    def _get_mask_stations_list(self, st_ids):
-        mask = np.isin(self.stations['st_id'], st_ids)
+        mask = (ssi['lat'] <= lt_lat) & (ssi['lon'] >= lt_lon) & (ssi['lat'] >= rb_lat) & (ssi['lon'] <= rb_lon)
         return mask
 
 
@@ -98,6 +91,10 @@ class GHCNMeta(GHCNInventory):
                                  'name', 'gsn_flag', 'hcn/crn_flag', 'wmo_id'))
         dat['st_id'] = dat['country'] + dat['network_code'] + dat['id']
         return dat
+
+    def get_meta(self, st_ids):
+        mask = np.isin(self.stations['st_id'], st_ids)
+        return self.stations[mask]
 
 
 def _flatten(lst):
