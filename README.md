@@ -4,10 +4,14 @@ Unofficial tools to download and read meteorological data from GHCN daily archiv
 GHCN daily homepage - https://www.ncdc.noaa.gov/ghcn-daily-description
 
 ## Requirements
+This project was only tested in the following enviroment but in principle should work with any recent version of Python, NumPy, and Pandas
+
 Python 3.6
+
 Numpy 1.15
+
 Pandas 0.23
-This project was not tested with older versions but in principle should work with any recent version
+
 
 ## Example
 
