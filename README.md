@@ -10,7 +10,7 @@ inv = GHCNInventory('ghcn-inventory.txt', download=True)
 st_list = inv.filter(country = 'KZ', element = 'PRCP')
 # download data for selected stations and save in to the ./data/ directory
 download_data(st_list['st_id'], './data/')
-fn = "./data/{}.dly".format(st_list['st_id'][0])
+fn = "./data/{}.dly".format(st_list['st_id'].iloc[0])
 # read station data to pandas array
 dat = read_dly(fn, 'PRCP', include_flags=True) 
 ```
