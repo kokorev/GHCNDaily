@@ -1,4 +1,4 @@
-# GHCNDaily
+# GHCN Daily
 Unofficial tools to download and read meteorological data from GHCN daily archive.
 
 GHCN daily homepage - https://www.ncdc.noaa.gov/ghcn-daily-description
